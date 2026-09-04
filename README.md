@@ -1,10 +1,12 @@
 # Depth Anything 3 (DA3METRIC-LARGE) on Qualcomm Rubik Pi 3 NPU
 
+**IMPORTANT**: This is a proof of concept and is mostly made with LLM, use at own risk
+
 This project provides an end-to-end, hardware-accelerated deployment of Depth Anything 3's flagship monocular metric depth model (**[DA3METRIC-LARGE](https://huggingface.co/depth-anything/DA3METRIC-LARGE)**, 335M parameters) on the Qualcomm Rubik Pi 3 (QCS6490 / RB3 Gen 2) utilizing the Hexagon v68 DSP NPU and ONNX Runtime. It includes both host-native execution and a self-contained Docker container.
 
 ---
 
-## 1. Technical Architecture & Innovations
+## 1. Technical Architecture
 
 ### Hardware Constraints & Solutions
 - **Hexagon v68 DSP Math**: The Hexagon v68 HTP processor has no native FP16 tensor core matrix units; it is a high-throughput INT8/UINT8 vector engine. Attempting FP16 QNN execution results in `QNN_OP_PACKAGE_ERROR_VALIDATION_FAILURE` (`3110`). The backbone is quantized using static UINT8 QDQ quantization calibrated on intermediate ViT activations.
