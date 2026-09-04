@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+# Virtual environments
+.venv/
+venv/
+deploy/venv/
+ENV/
+env/
+# Large Model Files & Checkpoints (~16 GB)
+models/
+deploy/models/
+*.onnx
+*.onnx_data
+*.bin
+*.ckpt
+*.pt
+*.pth
+# Compiled Shared Libraries
+deploy/libs/
+*.so
+*.so.*
+# Inference outputs and intermediate runtime cache
+output/
+deploy/output/
+container_output/
+/tmp/da3_cache/
+*.npy
+*.npz
+# Data (except the sample test image)
+data/*
+!data/sample.png
+# IDE / OS specific
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

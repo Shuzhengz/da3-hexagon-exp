@@ -1,0 +1,7 @@
+output/*
+*.npy
+*.png
+!data/sample.png
+__pycache__
+*.pyc
+.git
