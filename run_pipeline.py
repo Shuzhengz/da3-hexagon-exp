@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import subprocess
+import cv2
 import numpy as np
 from PIL import Image
 import onnxruntime as ort
@@ -90,13 +91,21 @@ print(f"  Max depth:     {depth_resized.max():.3f} meters")
 print(f"  Mean depth:    {depth_resized.mean():.3f} meters")
 print(f"  Unique values: {len(np.unique(depth_resized))}")
 
-# Normalize and colorize
-norm_depth = (depth_resized - depth_resized.min()) / (depth_resized.max() - depth_resized.min() + 1e-6)
+# Normalize depth: closest (min distance) -> 255 (brightest), farthest (max distance) -> 0 (darkest)
+norm_depth = (depth_resized.max() - depth_resized) / (depth_resized.max() - depth_resized.min() + 1e-6)
 depth_uint8 = (norm_depth * 255.0).astype(np.uint8)
+
+# Colorize using Inferno colormap (farthest=dark purple/black, closest=bright yellow/white)
+depth_colored_bgr = cv2.applyColorMap(depth_uint8, cv2.COLORMAP_INFERNO)
+depth_colored_rgb = cv2.cvtColor(depth_colored_bgr, cv2.COLOR_BGR2RGB)
+
+color_path = f'{output_dir}/depth_color.png'
+Image.fromarray(depth_colored_rgb).save(color_path)
+print(f"Saved colored depth map (brightest=closest, darkest=farthest) to: {color_path}")
 
 vis_path = f'{output_dir}/depth_vis.png'
 Image.fromarray(depth_uint8).save(vis_path)
-print(f"Saved depth visualization to: {vis_path}")
+print(f"Saved grayscale depth visualization to: {vis_path}")
 
 npy_path = f'{output_dir}/depth_metric.npy'
 np.save(npy_path, depth_resized)
