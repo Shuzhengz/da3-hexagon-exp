@@ -4,6 +4,7 @@ import time
 import shutil
 import argparse
 import subprocess
+import cv2
 import numpy as np
 from PIL import Image
 import onnxruntime as ort
@@ -118,9 +119,16 @@ def main():
     npy_path = os.path.join(output_dir, 'depth_metric.npy')
     np.save(npy_path, depth_resized)
     
-    # Save normalized visualization
-    norm_depth = (depth_resized - depth_resized.min()) / (depth_resized.max() - depth_resized.min() + 1e-6)
+    # Save normalized visualization (brightest=closest, darkest=farthest)
+    norm_depth = (depth_resized.max() - depth_resized) / (depth_resized.max() - depth_resized.min() + 1e-6)
     depth_uint8 = (norm_depth * 255.0).astype(np.uint8)
+    
+    # Save colorized depth map
+    depth_colored_bgr = cv2.applyColorMap(depth_uint8, cv2.COLORMAP_INFERNO)
+    depth_colored_rgb = cv2.cvtColor(depth_colored_bgr, cv2.COLOR_BGR2RGB)
+    color_path = os.path.join(output_dir, 'depth_color.png')
+    Image.fromarray(depth_colored_rgb).save(color_path)
+    
     vis_path = os.path.join(output_dir, 'depth_vis.png')
     Image.fromarray(depth_uint8).save(vis_path)
     
@@ -131,7 +139,8 @@ def main():
     print("\n================================================================")
     print(" Inference Summary & Statistics")
     print("================================================================")
-    print(f"  Depth Map Output:     {vis_path}")
+    print(f"  Colored Depth Map:    {color_path}")
+    print(f"  Grayscale Depth Map:  {vis_path}")
     print(f"  Metric Numpy Array:   {npy_path}")
     print(f"  Output Resolution:    {orig_w}x{orig_h}")
     print(f"  Min Depth (meters):   {depth_resized.min():.3f} m")
